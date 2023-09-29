@@ -1,6 +1,7 @@
 package dev.blockeed.vanitycore.server.objects;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
+import dev.blockeed.vanitycore.bungee.BungeeServer;
 import dev.blockeed.vanitycore.server.VanityServer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -30,7 +31,8 @@ public class LobbyServer extends VanityServer {
     }
 
     public void sendHeartBeat(VanityCoreAPI coreAPI) {
-        coreAPI.getServerManager().getServer("bungee", (bungeeServer) -> {
+        coreAPI.getServerManager().getServer("bungee", (jsonObject) -> {
+            BungeeServer bungeeServer = new BungeeServer(jsonObject.getString("name"));
             JSONObject message = new JSONObject();
             message.put("serverName", coreAPI.getServer().getName());
             coreAPI.getRedisManager().publishMessage("HEART-BEAT", bungeeServer, message, () -> {
