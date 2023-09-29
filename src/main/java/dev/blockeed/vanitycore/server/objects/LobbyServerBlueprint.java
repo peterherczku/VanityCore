@@ -29,7 +29,7 @@ public class LobbyServerBlueprint extends VanityServer {
         return jsonObject;
     }
 
-    public static LobbyServer fromJson(JSONObject jsonObject) {
-        return new LobbyServer(jsonObject.getString("name"), jsonObject.getBoolean("inProduction"));
+    public static LobbyServerBlueprint fromJson(JSONObject jsonObject) {
+        return new LobbyServerBlueprint(jsonObject.getString("name"), jsonObject.getBoolean("inProduction"));
     }
 }
