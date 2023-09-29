@@ -4,6 +4,8 @@ package dev.blockeed.vanitycore.redis;
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.server.VanityServer;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
@@ -44,7 +46,9 @@ public class RedisManager {
     public void subscribeToChannel() {
         StatefulRedisPubSubConnection<String, String> connection = redisClient.connectPubSub();
         connection.addListener(new MainChannelListener(coreAPI));
-        connection.async().subscribe("MAIN-CHANNEL");
+
+        RedisPubSubAsyncCommands<String, String> async = connection.async();
+        async.subscribe("channel");
     }
 
     public void addToList(String key, JSONObject value, Runnable runnable) {

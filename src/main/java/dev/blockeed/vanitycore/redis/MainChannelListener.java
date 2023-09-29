@@ -2,6 +2,7 @@ package dev.blockeed.vanitycore.redis;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.server.VanityServer;
+import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -9,7 +10,7 @@ import org.json.JSONObject;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class MainChannelListener implements RedisPubSubListener<String, String>{
+public class MainChannelListener extends RedisPubSubAdapter<String, String> {
 
     private final VanityCoreAPI coreAPI;
 
