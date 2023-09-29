@@ -8,6 +8,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -19,9 +20,15 @@ public class HeartBeatHandler extends VanityPubSubListener {
         this.lastHeartBeat=new HashMap<>();
 
         ProxyServer.getInstance().getScheduler().schedule(plugin, new Runnable() {
+            Iterator<Map.Entry<String, Long>> iterator = lastHeartBeat.entrySet().iterator();
+
             @Override
             public void run() {
-                lastHeartBeat.forEach((serverName, lastTime) -> {
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Long> entry = iterator.next();
+                    String serverName = entry.getKey();
+                    Long lastTime = entry.getValue();
+
                     if (System.currentTimeMillis()-lastTime>120) {
                         System.out.println(serverName+" skipped 2 heart beats, unregistering server...");
                         coreAPI.getServerManager().getServer(serverName, (server) -> {
@@ -29,9 +36,10 @@ public class HeartBeatHandler extends VanityPubSubListener {
                                 System.out.println("Successfully unregistered "+serverName);
                             });
                         });
-                        lastHeartBeat.remove(serverName);
+                        iterator.remove();
                     }
-                });
+                }
+
             }
         }, 0, 120, TimeUnit.SECONDS);
     }
