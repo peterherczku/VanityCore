@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,14 @@ public class RedisManager {
         executorService.scheduleAtFixedRate(() -> {
             // Check if the connection is valid
             System.out.println("asd");
-            System.out.println(connection.get());
+            System.out.println(connection.get().isOpen());
+            try {
+                System.out.println(connection.get().async().pubsubChannels().get());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
             if (!connection.get().isOpen()) {
                 // Connection is lost, re-establish it
                 connection.set(redisClient.connectPubSub());
