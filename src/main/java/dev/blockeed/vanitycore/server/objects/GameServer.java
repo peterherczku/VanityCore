@@ -45,11 +45,10 @@ public class GameServer extends VanityServer {
     }
 
     public void sendHeartBeat(VanityCoreAPI coreAPI) {
-        coreAPI.getServerManager().getServer("bungee", (jsonObject) -> {
-            BungeeServer bungeeServer = new BungeeServer(jsonObject.getString("name"));
+        coreAPI.getServerManager().getServer("bungee", (server) -> {
             JSONObject message = new JSONObject();
             message.put("serverName", coreAPI.getServer().getName());
-            coreAPI.getRedisManager().publishMessage("HEART-BEAT", bungeeServer, message, () -> {
+            coreAPI.getRedisManager().publishMessage("HEART-BEAT", server, message, () -> {
 
             });
         });
