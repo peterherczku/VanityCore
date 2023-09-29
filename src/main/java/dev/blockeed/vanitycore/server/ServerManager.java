@@ -15,7 +15,6 @@ public class ServerManager {
 
     public void getServer(String name, Consumer<VanityServer> callback) {
         coreAPI.getRedisManager().getElementFromList("servers", "name", name, (jsonObject -> {
-            System.out.println("mafi");
             VanityServer.Type type = VanityServer.Type.valueOf(jsonObject.getString("type").toUpperCase());
 
             switch (type) {
@@ -26,6 +25,7 @@ public class ServerManager {
                     callback.accept(BungeeServer.fromJson(jsonObject));
                     break;
                 case LOBBY:
+                    System.out.println(jsonObject);
                     callback.accept(LobbyServer.fromJson(jsonObject));
                     break;
             }
