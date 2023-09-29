@@ -29,6 +29,7 @@ public abstract class VanityPubSubListener implements RedisPubSubListener<String
         String receiverServerName = json.getString("receiver");
         String subChannelName = json.getString("subChannel");
         if (!subChannelName.equals(subChannel)) return;
+        System.out.println(coreAPI.getServer().getName());
         if (!receiverServerName.equals(coreAPI.getServer().getName()) && !receiverServerName.equals("*")) return;
 
         JSONObject messageJson = json.getJSONObject("message");
