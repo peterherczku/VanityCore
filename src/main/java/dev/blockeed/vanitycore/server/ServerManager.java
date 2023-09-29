@@ -19,7 +19,10 @@ public class ServerManager {
 
             switch (type) {
                 case LOBBY:
+                    System.out.println("nem mukodik???");
+                    System.out.println(jsonObject);
                     System.out.println(LobbyServer.fromJson(jsonObject).getName());
+                    System.out.println("nem mukodik??, end");
                     callback.accept(LobbyServer.fromJson(jsonObject));
                     break;
             }
