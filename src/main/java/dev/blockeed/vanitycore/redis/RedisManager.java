@@ -43,13 +43,13 @@ public class RedisManager {
     public void addToList(String key, JSONObject value, Runnable runnable) {
         if (redisClient==null) return;
 
-        redisClient.connect().async().sadd(key, value.toString()).thenRun(runnable);
+        redisClient.connect().async().sadd(key, value.toString()).thenRunAsync(runnable);
     }
 
     public void removeFromList(String key, JSONObject value, Runnable runnable) {
         if (redisClient==null) return;
 
-        redisClient.connect().async().srem(key, value.toString()).thenRun(runnable);;
+        redisClient.connect().async().srem(key, value.toString()).thenRunAsync(runnable);;
     }
 
     public void updateList(String key, JSONObject oldValue, JSONObject newValue, Runnable runnable) {
@@ -68,7 +68,7 @@ public class RedisManager {
         if (redisClient==null) return;
 
         try {
-            redisClient.connect().async().smembers(key).thenAccept((set) -> {
+            redisClient.connect().async().smembers(key).thenAcceptAsync((set) -> {
                 callback.accept(set.stream().map(JSONObject::new).collect(Collectors.toList()));
             });
         } catch (Exception ex) {
@@ -108,7 +108,7 @@ public class RedisManager {
         }
         jsonObject.put("message", message);
 
-        async.publish("MAIN-CHANNEL", jsonObject.toString()).thenRun(runnable);
+        async.publish("MAIN-CHANNEL", jsonObject.toString()).thenRunAsync(runnable);
     }
 
 }
