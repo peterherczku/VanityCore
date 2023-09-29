@@ -50,6 +50,7 @@ public class RedisManager {
     public void subscribeToChannel() {
         AtomicReference<StatefulRedisPubSubConnection<String, String>> connection = new AtomicReference<>(redisClient.connectPubSub());
         connection.get().addListener(new MainChannelListener(coreAPI));
+        connection.get().async().subscribe("MAIN-CHANNEL");
 
         // Implement a loop to continuously check the connection status
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -61,6 +62,7 @@ public class RedisManager {
                 // Connection is lost, re-establish it
                 connection.set(redisClient.connectPubSub());
                 connection.get().addListener(new MainChannelListener(coreAPI));
+                connection.get().async().subscribe("MAIN-CHANNEL");
             }
         }, 0, 1, TimeUnit.SECONDS);
     }
