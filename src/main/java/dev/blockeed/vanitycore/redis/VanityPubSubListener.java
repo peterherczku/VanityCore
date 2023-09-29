@@ -16,6 +16,8 @@ public abstract class VanityPubSubListener implements RedisPubSubListener<String
     @Override
     public void message(String channel, String message) {
         System.out.println("asd");
+        System.out.println(message);
+        System.out.println(channel);
         if (!channel.equals("MAIN-CHANNEL")) return;
         JSONObject json = new JSONObject(message);
         if (!json.has("sender")) return;
@@ -30,7 +32,6 @@ public abstract class VanityPubSubListener implements RedisPubSubListener<String
         if (!receiverServerName.equals(coreAPI.getServer().getName()) && !receiverServerName.equals("*")) return;
 
         JSONObject messageJson = json.getJSONObject("message");
-        System.out.println(messageJson);
 
         coreAPI.getServerManager().getServer(senderServerName, (server) -> {
             onMessage(server, messageJson);
