@@ -7,10 +7,13 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -24,19 +27,22 @@ public class RedisManager {
 
     private RedisClient redisClient;
 
+    @Getter
+    private Map<String, VanityPubSubListener> subChannelListeners=new HashMap<>();
+
     public void connect() {
         this.redisClient=RedisClient.create("redis://"+host+":"+port+"/");
     }
 
-    public void registerListeners(RedisPubSubListener... listeners) {
-        StatefulRedisPubSubConnection<String, String> connection = redisClient.connectPubSub();
-
-        connection.async().unsubscribe("MAIN-CHANNEL");
-
-        for (RedisPubSubListener listener : listeners) {
-            connection.addListener(listener);
+    public void registerListeners(VanityPubSubListener... listeners) {
+        for (VanityPubSubListener listener : listeners) {
+            subChannelListeners.put(listener.getSubChannel(), listener);
         }
+    }
 
+    public void subscribeToChannel() {
+        StatefulRedisPubSubConnection<String, String> connection = redisClient.connectPubSub();
+        connection.addListener(new MainChannelListener(coreAPI));
         connection.async().subscribe("MAIN-CHANNEL");
     }
 

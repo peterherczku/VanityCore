@@ -1,19 +1,17 @@
 package dev.blockeed.vanitycore.bungee;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
-import dev.blockeed.vanitycore.redis.ServerType;
-import dev.blockeed.vanitycore.redis.VanityPubSubListener;
+import dev.blockeed.vanitycore.redis.MainChannelListener;
 import dev.blockeed.vanitycore.server.VanityServer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class HeartBeatHandler extends VanityPubSubListener {
+public class HeartBeatHandler extends MainChannelListener {
 
     private Map<String, Long> lastHeartBeat;
 
