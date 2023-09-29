@@ -21,9 +21,9 @@ public class ServerManager {
                 case LOBBY:
                     System.out.println("nem mukodik???");
                     System.out.println(jsonObject);
-                    System.out.println(LobbyServer.fromJson(jsonObject).getName());
+                    System.out.println(new LobbyServer(jsonObject.getString("name"), jsonObject.getBoolean("inProduction")).getName());
                     System.out.println("nem mukodik??, end");
-                    callback.accept(LobbyServer.fromJson(jsonObject));
+                    callback.accept(new LobbyServer(jsonObject.getString("name"), jsonObject.getBoolean("inProduction")));
                     break;
             }
         }));
