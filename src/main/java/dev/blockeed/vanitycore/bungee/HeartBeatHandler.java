@@ -1,7 +1,6 @@
 package dev.blockeed.vanitycore.bungee;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
-import dev.blockeed.vanitycore.redis.MainChannelListener;
 import dev.blockeed.vanitycore.redis.VanityPubSubListener;
 import dev.blockeed.vanitycore.server.VanityServer;
 import net.md_5.bungee.api.ProxyServer;
