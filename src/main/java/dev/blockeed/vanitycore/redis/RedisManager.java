@@ -64,10 +64,10 @@ public class RedisManager {
                 }
 
                 VanityPubSubListener vanityPubSubListener = coreAPI.getRedisManager().getSubChannelListeners().stream().filter(listener -> listener.getSubChannel().equals(subChannelName)).findAny().get();
-                System.out.println(vanityPubSubListener.getSubChannel());
                 JSONObject messageJson = json.getJSONObject("message");
 
                 coreAPI.getServerManager().getServer(senderServerName, (server) -> {
+                    System.out.println(server.getName());
                     vanityPubSubListener.onMessage(server, messageJson);
                 });
             }
