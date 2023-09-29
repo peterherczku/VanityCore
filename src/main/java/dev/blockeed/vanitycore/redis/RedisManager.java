@@ -58,6 +58,8 @@ public class RedisManager {
         // Schedule a task to check the connection status every 1 second
         executorService.scheduleAtFixedRate(() -> {
             // Check if the connection is valid
+            System.out.println("asd");
+            System.out.println(connection.get());
             if (!connection.get().isOpen()) {
                 // Connection is lost, re-establish it
                 connection.set(redisClient.connectPubSub());
