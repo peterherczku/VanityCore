@@ -27,11 +27,6 @@ public class HeartBeatHandler extends VanityPubSubListener {
                 lastHeartBeat.forEach((serverName, lastTime) -> {
                     if (System.currentTimeMillis()-lastTime>120) {
                         System.out.println(serverName+" skipped 2 heart beats, unregistering server...");
-                        coreAPI.getServerManager().getServer(serverName, (server) -> {
-                            coreAPI.getRedisManager().removeFromList("servers", server.getData(), () -> {
-                                System.out.println("Successfully unregistered "+serverName);
-                            });
-                        });
                     }
                 });
             }
