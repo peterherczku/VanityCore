@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,11 +48,21 @@ public class RedisManager {
     }
 
     public void subscribeToChannel() {
-        StatefulRedisPubSubConnection<String, String> connection = redisClient.connectPubSub();
-        connection.addListener(new MainChannelListener(coreAPI));
+        AtomicReference<StatefulRedisPubSubConnection<String, String>> connection = new AtomicReference<>(redisClient.connectPubSub());
+        connection.get().addListener(new MainChannelListener(coreAPI));
 
-        RedisPubSubAsyncCommands<String, String> async = connection.async();
-        async.subscribe("MAIN-CHANNEL");
+        // Implement a loop to continuously check the connection status
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+        // Schedule a task to check the connection status every 1 second
+        executorService.scheduleAtFixedRate(() -> {
+            // Check if the connection is valid
+            if (!connection.get().isOpen()) {
+                // Connection is lost, re-establish it
+                connection.set(redisClient.connectPubSub());
+                connection.get().addListener(new MainChannelListener(coreAPI));
+            }
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
     public void addToList(String key, JSONObject value, Runnable runnable) {
