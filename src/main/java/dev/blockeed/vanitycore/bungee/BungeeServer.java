@@ -16,6 +16,7 @@ public class BungeeServer extends VanityServer {
         this.name=this.section.getString("serverName");
 
         coreAPI.getRedisManager().registerListeners(new HeartBeatHandler(coreAPI, plugin));
+        coreAPI.getRedisManager().subscribeToChannel();
     }
 
     public BungeeServer(String name) {

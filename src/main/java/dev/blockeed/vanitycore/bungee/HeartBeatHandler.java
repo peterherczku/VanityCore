@@ -2,6 +2,7 @@ package dev.blockeed.vanitycore.bungee;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.redis.MainChannelListener;
+import dev.blockeed.vanitycore.redis.VanityPubSubListener;
 import dev.blockeed.vanitycore.server.VanityServer;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -11,12 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class HeartBeatHandler extends MainChannelListener {
+public class HeartBeatHandler extends VanityPubSubListener {
 
     private Map<String, Long> lastHeartBeat;
 
     public HeartBeatHandler(VanityCoreAPI coreAPI, Plugin plugin) {
-        super(coreAPI, "HEART-BEAT");
         this.lastHeartBeat=new HashMap<>();
 
         ProxyServer.getInstance().getScheduler().schedule(plugin, new Runnable() {
@@ -45,6 +45,11 @@ public class HeartBeatHandler extends MainChannelListener {
         }
 
          lastHeartBeat.replace(sender.getName(), System.currentTimeMillis());
+    }
+
+    @Override
+    public String getSubChannel() {
+        return "HEART-BEAT";
     }
 
 }
