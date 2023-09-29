@@ -2,11 +2,8 @@ package dev.blockeed.vanitycore.server;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.bungee.BungeeServer;
-import dev.blockeed.vanitycore.server.objects.GameServer;
 import dev.blockeed.vanitycore.server.objects.LobbyServer;
-import dev.blockeed.vanitycore.server.objects.LobbyServerBlueprint;
 import lombok.AllArgsConstructor;
-import org.json.JSONObject;
 
 import java.util.function.Consumer;
 
@@ -20,13 +17,11 @@ public class ServerManager {
             VanityServer.Type type = VanityServer.Type.valueOf(jsonObject.getString("type").toUpperCase());
 
             switch (type) {
+                case BUNGEE:
+                    callback.accept(BungeeServer.fromJson(jsonObject));
+                    break;
                 case LOBBY:
-                    System.out.println("nem mukodik???");
-                    System.out.println(jsonObject);
-                    System.out.println(jsonObject.getString("name"));
-                    System.out.println(jsonObject.getBoolean("inProduction"));
-                    System.out.println("nem mukodik??, end");
-                    callback.accept(LobbyServerBlueprint.fromJson(jsonObject));
+                    callback.accept(LobbyServer.fromJson(jsonObject));
                     break;
             }
         }));
