@@ -15,7 +15,8 @@ public class ServerManager {
 
     public void getServer(String name, Consumer<VanityServer> callback) {
         coreAPI.getRedisManager().getElementFromList("servers", "name", name, (jsonObject -> {
-            VanityServer.Type type = VanityServer.Type.valueOf(jsonObject.getString("type"));
+            System.out.println("mafi");
+            VanityServer.Type type = VanityServer.Type.valueOf(jsonObject.getString("type").toUpperCase());
 
             switch (type) {
                 case GAME:
