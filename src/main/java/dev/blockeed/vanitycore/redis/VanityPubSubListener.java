@@ -2,6 +2,7 @@ package dev.blockeed.vanitycore.redis;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.server.VanityServer;
+import dev.blockeed.vanitycore.server.objects.LobbyServer;
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -31,9 +32,9 @@ public abstract class VanityPubSubListener implements RedisPubSubListener<String
         JSONObject messageJson = json.getJSONObject("message");
         System.out.println(messageJson);
 
-        coreAPI.getServerManager().getServer(senderServerName, (server) -> {
-            System.out.println("asd2");
-            onMessage(server, messageJson);
+        coreAPI.getServerManager().getServer(senderServerName, (jsonObject) -> {
+            System.out.println(jsonObject);
+            onMessage(new LobbyServer(jsonObject.getString("name"), jsonObject.getBoolean("inProduction")), messageJson);
         });
     }
 
