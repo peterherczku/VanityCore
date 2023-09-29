@@ -13,19 +13,13 @@ public class ServerManager {
 
     private VanityCoreAPI coreAPI;
 
-    public void getServer(String name, Consumer<VanityServer> callback) {
+    public void getServer(String name, Consumer<LobbyServer> callback) {
         coreAPI.getRedisManager().getElementFromList("servers", "name", name, (jsonObject -> {
             VanityServer.Type type = VanityServer.Type.valueOf(jsonObject.getString("type").toUpperCase());
 
             switch (type) {
-                case GAME:
-                    callback.accept(GameServer.fromJson(jsonObject));
-                    break;
-                case BUNGEE:
-                    callback.accept(BungeeServer.fromJson(jsonObject));
-                    break;
                 case LOBBY:
-                    System.out.println(jsonObject);
+                    System.out.println(LobbyServer.fromJson(jsonObject).getName());
                     callback.accept(LobbyServer.fromJson(jsonObject));
                     break;
             }
