@@ -34,13 +34,13 @@ public class HeartBeatHandler extends VanityPubSubListener {
     }
 
     @Override
-    public void onMessage(VanityServer sender, JSONObject message) {
-        if (!lastHeartBeat.containsKey(sender.getName())) {
-            lastHeartBeat.put(sender.getName(), System.currentTimeMillis());
+    public void onMessage(String sender, JSONObject message) {
+        if (!lastHeartBeat.containsKey(sender)) {
+            lastHeartBeat.put(sender, System.currentTimeMillis());
             return;
         }
 
-         lastHeartBeat.replace(sender.getName(), System.currentTimeMillis());
+         lastHeartBeat.replace(sender, System.currentTimeMillis());
     }
 
 }

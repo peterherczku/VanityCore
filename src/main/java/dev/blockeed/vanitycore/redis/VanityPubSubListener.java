@@ -33,12 +33,11 @@ public abstract class VanityPubSubListener implements RedisPubSubListener<String
         System.out.println(messageJson);
 
         coreAPI.getServerManager().getServer(senderServerName, (jsonObject) -> {
-            System.out.println(jsonObject);
-            onMessage(new LobbyServer(jsonObject.getString("name"), jsonObject.getBoolean("inProduction")), messageJson);
+            onMessage("name", messageJson);
         });
     }
 
-    public abstract void onMessage(VanityServer sender, JSONObject message);
+    public abstract void onMessage(String serverName, JSONObject message);
 
     @Override
     public void message(String string, String k1, String string2) {
