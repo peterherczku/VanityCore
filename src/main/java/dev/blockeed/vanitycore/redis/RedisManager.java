@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class RedisManager {
     private RedisClient redisClient;
 
     @Getter
-    private Map<String, VanityPubSubListener> subChannelListeners=new HashMap<>();
+    private List<VanityPubSubListener> subChannelListeners=new ArrayList<>();
 
     public void connect() {
         this.redisClient=RedisClient.create("redis://"+host+":"+port+"/");
@@ -36,7 +37,7 @@ public class RedisManager {
 
     public void registerListeners(VanityPubSubListener... listeners) {
         for (VanityPubSubListener listener : listeners) {
-            subChannelListeners.put(listener.getSubChannel(), listener);
+            subChannelListeners.add(listener);
         }
     }
 

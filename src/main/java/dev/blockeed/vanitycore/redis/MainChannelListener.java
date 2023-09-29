@@ -16,8 +16,6 @@ public class MainChannelListener implements RedisPubSubListener<String, String>{
     @Override
     public void message(String channel, String message) {
         System.out.println("asd");
-        System.out.println(message);
-        System.out.println(channel);
         if (!channel.equals("MAIN-CHANNEL")) return;
         JSONObject json = new JSONObject(message);
         if (!json.has("sender")) return;
@@ -30,7 +28,13 @@ public class MainChannelListener implements RedisPubSubListener<String, String>{
         String subChannelName = json.getString("subChannel");
         if (!receiverServerName.equals(coreAPI.getServer().getName()) && !receiverServerName.equals("*")) return;
 
-        VanityPubSubListener vanityPubSubListener = coreAPI.getRedisManager().getSubChannelListeners().get(coreAPI.getRedisManager().getSubChannelListeners().keySet().stream().filter(subChannel -> subChannel.equals(subChannelName)).findAny().get());
+        if (!coreAPI.getRedisManager().getSubChannelListeners().stream().filter(listener -> listener.getSubChannel().equals(subChannelName)).findAny().isPresent()) {
+            System.out.println("Catched message without sub channel handler, ignoring message...");
+            return;
+        }
+
+        VanityPubSubListener vanityPubSubListener = coreAPI.getRedisManager().getSubChannelListeners().stream().filter(listener -> listener.getSubChannel().equals(subChannelName)).findAny().get();
+        System.out.println(vanityPubSubListener.getSubChannel());
         JSONObject messageJson = json.getJSONObject("message");
 
         coreAPI.getServerManager().getServer(senderServerName, (server) -> {
