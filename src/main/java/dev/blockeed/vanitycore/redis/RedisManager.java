@@ -63,10 +63,10 @@ public class RedisManager {
             System.out.println(connection.get().isOpen());
             try {
                 System.out.println(connection.get().async().pubsubChannels().get());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                connection.set(redisClient.connectPubSub());
+                connection.get().addListener(new MainChannelListener(coreAPI));
+                connection.get().async().subscribe("MAIN-CHANNEL");
             }
             if (!connection.get().isOpen()) {
                 // Connection is lost, re-establish it
