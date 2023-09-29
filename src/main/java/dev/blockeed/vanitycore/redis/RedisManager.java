@@ -48,7 +48,7 @@ public class RedisManager {
         connection.addListener(new MainChannelListener(coreAPI));
 
         RedisPubSubAsyncCommands<String, String> async = connection.async();
-        async.subscribe("channel");
+        async.subscribe("MAIN-CHANNEL");
     }
 
     public void addToList(String key, JSONObject value, Runnable runnable) {
