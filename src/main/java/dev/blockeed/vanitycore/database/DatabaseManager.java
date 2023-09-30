@@ -4,20 +4,15 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
-import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -46,38 +41,60 @@ public class DatabaseManager {
 
     public void exists(String collection, String fieldName, Object value, Consumer<Boolean> callback) {
         MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-        Publisher<Long> publisher = mongoCollection.countDocuments(eq(fieldName, value));
 
-        Flux.from(publisher).doOnNext(count -> callback.accept(count>0)).subscribe();
+        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
+            return mongoCollection.countDocuments(eq(fieldName, value))>0;
+        });
+
+        completableFuture.thenAccept(callback);
+
     }
 
     public void query(String collection, String fieldName, Object value, Consumer<Document> callback) {
         MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-        Publisher<Document> publisher = mongoCollection.find(eq(fieldName, value));
 
-        Flux.from(publisher).doOnNext((callback)).subscribe();
+        CompletableFuture<Document> completableFuture = CompletableFuture.supplyAsync(() -> {
+            return mongoCollection.find(eq(fieldName, value)).first();
+        });
+
+        completableFuture.thenAccept(callback);
     }
 
     public void insert(String collection, Document document, Runnable runnable){
         MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-        Publisher<InsertOneResult> insertOperation = mongoCollection.insertOne(document);
 
-        Flux.from(insertOperation).doOnNext((voidValue) -> runnable.run()).subscribe();
+        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
+           return mongoCollection.insertOne(document).wasAcknowledged();
+        });
+
+        completableFuture.thenAccept((acknowledged) -> {
+            if (acknowledged) runnable.run();
+            else throw new RuntimeException();
+        });
     }
 
     public void insertMany(String collection, List<Document> document, Runnable runnable) {
         MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-        Publisher<InsertManyResult> insertManyOperation = mongoCollection.insertMany(document);
+        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
+            return mongoCollection.insertMany(document).wasAcknowledged();
+        });
 
-        Flux.from(insertManyOperation).doOnNext((voidValue) -> runnable.run()).subscribe();
+        completableFuture.thenAccept((acknowledged) -> {
+            if (acknowledged) runnable.run();
+            else throw new RuntimeException();
+        });
     }
 
     public void update(String collection, String whereField, Object whereValue, Document newDocument, Runnable runnable) {
         query(collection, whereField, whereValue, (oldDocument) -> {
             MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-            Publisher<UpdateResult> updateOperation = mongoCollection.updateOne(oldDocument, newDocument);
-
-            Flux.from(updateOperation).doOnNext((voidValue) -> runnable.run()).subscribe();
+            CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
+                return mongoCollection.updateOne(oldDocument, newDocument).wasAcknowledged();
+            });
+            completableFuture.thenAccept((acknowledged) -> {
+                if (acknowledged) runnable.run();
+                else throw new RuntimeException();
+            });
         });
     }
 
