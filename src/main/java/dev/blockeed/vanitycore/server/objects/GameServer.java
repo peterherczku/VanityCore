@@ -3,6 +3,7 @@ package dev.blockeed.vanitycore.server.objects;
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.server.VanityServer;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,9 +14,9 @@ public class GameServer extends VanityServer {
 
     private ConfigurationSection section;
     private final String name;
-    @Setter
+    @Setter @Getter
     private boolean inProduction;
-    @Setter
+    @Setter @Getter
     private boolean waitingForGameData;
 
     public GameServer(VanityCoreAPI coreAPI, ConfigurationSection section, JavaPlugin javaPlugin) {
