@@ -19,7 +19,7 @@ public class ProfileData {
     public void load(DatabaseManager databaseManager, Runnable runnable) {
         databaseManager.exists("profile", "uuid", uuid.toString(), (exists) -> {
             if (!exists) {
-                databaseManager.insert("profile", new Document("uuid", uuid.toString()).append("name", name).append("tokenBalance", tokenBalance), runnable);
+                databaseManager.insert("profile", new Document("uuid", uuid.toString()).append("name", name).append("tokenBalance", tokenBalance.getAmount()), runnable);
                 return;
             }
 
@@ -31,7 +31,7 @@ public class ProfileData {
     }
 
     public void save(DatabaseManager databaseManager, Runnable runnable) {
-        databaseManager.update("profile", "uuid", uuid.toString(), new Document("uuid", uuid.toString()).append("name", name).append("tokenBalance", tokenBalance), runnable);
+        databaseManager.update("profile", "uuid", uuid.toString(), new Document("uuid", uuid.toString()).append("name", name).append("tokenBalance", tokenBalance.getAmount()), runnable);
     }
 
 }
