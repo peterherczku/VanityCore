@@ -24,7 +24,7 @@ public class VanityCoreAPI<T extends VanityServer> {
     public VanityCoreAPI() {
         this.redisManager=new RedisManager(this, "127.0.0.1", "6379", "asd123");
         this.serverManager=new ServerManager(this);
-        this.databaseManager=new DatabaseManager("127.0.0.1", "3306", "admin", "admin", "vanitybedwars");
+        this.databaseManager=new DatabaseManager(this);
         this.profileManager=new ProfileManager(this);
 
         this.redisManager.connect();

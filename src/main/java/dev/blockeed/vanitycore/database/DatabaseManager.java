@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Filters.eq;
 
-@RequiredArgsConstructor
 public class DatabaseManager {
 
     private VanityCoreAPI coreAPI;
