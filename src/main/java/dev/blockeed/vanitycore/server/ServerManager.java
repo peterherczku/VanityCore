@@ -2,6 +2,7 @@ package dev.blockeed.vanitycore.server;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import dev.blockeed.vanitycore.bungee.BungeeServer;
+import dev.blockeed.vanitycore.server.objects.GameServer;
 import dev.blockeed.vanitycore.server.objects.LobbyServer;
 import lombok.AllArgsConstructor;
 
@@ -22,6 +23,9 @@ public class ServerManager {
                     break;
                 case LOBBY:
                     callback.accept(LobbyServer.fromJson(jsonObject));
+                    break;
+                case GAME:
+                    callback.accept(GameServer.fromJson(jsonObject));
                     break;
             }
         }));
