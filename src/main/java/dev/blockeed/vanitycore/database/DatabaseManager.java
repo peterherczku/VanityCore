@@ -33,7 +33,7 @@ public class DatabaseManager {
     private final String database;
 
     public void connect() {
-        ConnectionString connString = new ConnectionString("mongodb://localhost:3306");
+        ConnectionString connString = new ConnectionString("mongodb://localhost:27017");
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)
                 .build();
