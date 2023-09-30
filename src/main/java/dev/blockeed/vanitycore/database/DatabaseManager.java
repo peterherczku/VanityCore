@@ -50,7 +50,7 @@ public class DatabaseManager {
     public CompletableFuture<Document> query(String collection, String databaseObject, Object compare) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Document document = getMongoClient().getDatabase("minedark").getCollection(collection).find(eq(databaseObject, compare)).first();
+                Document document = getMongoClient().getDatabase("vanity").getCollection(collection).find(eq(databaseObject, compare)).first();
                 return document;
             } catch (Exception e) {
                 return null;
@@ -68,7 +68,7 @@ public class DatabaseManager {
                 );
                 UpdateOptions options = new UpdateOptions().upsert(true);
 
-                getMongoClient().getDatabase("minedark").getCollection(collection).updateOne(query, updates, options);
+                getMongoClient().getDatabase("vanity").getCollection(collection).updateOne(query, updates, options);
 
                 return null;
             } catch (Exception e) {
@@ -83,7 +83,7 @@ public class DatabaseManager {
                 Document query = new Document().append(queryDatabaseObject, compare);
                 UpdateOptions options = new UpdateOptions().upsert(true);
 
-                getMongoClient().getDatabase("minedark").getCollection(collection).updateOne(query, Updates.combine(updateFields), options);
+                getMongoClient().getDatabase("vanity").getCollection(collection).updateOne(query, Updates.combine(updateFields), options);
                 return null;
             } catch (Exception e) {
                 return null;
@@ -96,7 +96,7 @@ public class DatabaseManager {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Document document = new Document(queryDatabaseObject, compare);
-                long userCount = getMongoClient().getDatabase("minedark").getCollection(collection).countDocuments(document);
+                long userCount = getMongoClient().getDatabase("vanity").getCollection(collection).countDocuments(document);
                 return (userCount>0);
             } catch (Exception e) {
                 return false;
