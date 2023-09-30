@@ -2,9 +2,11 @@ package dev.blockeed.vanitycore.profile;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import lombok.AllArgsConstructor;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -14,9 +16,24 @@ public class ProfileHandler implements Listener {
     private VanityCoreAPI coreAPI;
 
     @EventHandler
+    public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
+        try {
+            coreAPI.getProfileManager().handleProfileCreation(event.getUniqueId());
+        } catch (NullPointerException exception) {
+            System.out.println(exception);
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "§cERROR: Could not create profile");
+        }
+    }
+
+    @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        coreAPI.getProfileManager().loadProfile(player.getUniqueId(), player.getName(), () -> {});
+        ProfileData profileData = coreAPI.getProfileManager().getProfile(player.getUniqueId());
+        if (profileData==null) {
+            player.kickPlayer(ChatColor.RED+"ERROR: "+ChatColor.WHITE+"Profile returned null.");
+            return;
+        }
+        profileData.load(coreAPI.getDatabaseManager());
     }
 
     @EventHandler

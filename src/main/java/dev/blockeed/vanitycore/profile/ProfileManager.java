@@ -14,12 +14,10 @@ public class ProfileManager {
         this.profiles=new HashMap<>();
     }
 
-    public void loadProfile(UUID uuid, String name, Runnable runnable) {
-        if (!this.profiles.containsKey(uuid)) {
-            this.profiles.put(uuid, new ProfileData(uuid, name));
+    public void handleProfileCreation(UUID uuid) {
+        if(!this.profiles.containsKey(uuid)) {
+            this.profiles.put(uuid, new ProfileData(uuid));
         }
-
-        getProfile(uuid).load(coreAPI.getDatabaseManager(), runnable);
     }
 
     public ProfileData getProfile(UUID uuid) {

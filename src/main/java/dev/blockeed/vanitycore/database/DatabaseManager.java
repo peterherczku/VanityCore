@@ -7,9 +7,13 @@ import com.mongodb.ServerApiVersion;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import dev.blockeed.vanitycore.VanityCoreAPI;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,82 +24,102 @@ import static com.mongodb.client.model.Filters.eq;
 @RequiredArgsConstructor
 public class DatabaseManager {
 
+    private VanityCoreAPI coreAPI;
     private MongoClient mongoClient;
-    private final String host;
-    private final String port;
-    private final String username;
-    private final String password;
-    private final String database;
 
-    public void connect() {
-        ConnectionString connString = new ConnectionString("mongodb://localhost:27017");
-        ServerApi serverApi = ServerApi.builder()
-                .version(ServerApiVersion.V1)
-                .build();
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connString)
-                .serverApi(serverApi)
-                .build();
-        this.mongoClient = MongoClients.create(settings);
+    public DatabaseManager(VanityCoreAPI coreAPI) {
+        this.coreAPI=coreAPI;
+        this.mongoClient=this.connectToDatabase();
     }
 
-    public void exists(String collection, String fieldName, Object value, Consumer<Boolean> callback) {
-        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
+    public MongoClient connectToDatabase() {
+        String uri = "mongodb://localhost:27017";
 
-        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
-            return mongoCollection.countDocuments(eq(fieldName, value))>0;
-        });
-
-        completableFuture.thenAccept(callback);
-
+        ConnectionString connectionString = new ConnectionString(uri);
+        MongoClient mongoClient = MongoClients.create(connectionString);
+        return mongoClient;
     }
 
-    public void query(String collection, String fieldName, Object value, Consumer<Document> callback) {
-        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-
-        CompletableFuture<Document> completableFuture = CompletableFuture.supplyAsync(() -> {
-            return mongoCollection.find(eq(fieldName, value)).first();
-        });
-
-        completableFuture.thenAccept(callback);
+    public void closeConnection() {
+        mongoClient.close();
     }
 
-    public void insert(String collection, Document document, Runnable runnable){
-        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
+    public MongoClient getMongoClient() {
+        return this.mongoClient;
+    }
 
-        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
-           return mongoCollection.insertOne(document).wasAcknowledged();
-        });
+    public CompletableFuture<Document> query(String collection, String databaseObject, Object compare) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Document document = getMongoClient().getDatabase("minedark").getCollection(collection).find(eq(databaseObject, compare)).first();
+                return document;
+            } catch (Exception e) {
+                return null;
+            }
 
-        completableFuture.thenAccept((acknowledged) -> {
-            if (acknowledged) runnable.run();
-            else throw new RuntimeException();
         });
     }
 
-    public void insertMany(String collection, List<Document> document, Runnable runnable) {
-        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-        CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
-            return mongoCollection.insertMany(document).wasAcknowledged();
-        });
+    public CompletableFuture<Void> updateSingleValue(String collection, String queryDatabaseObject, String compare, String databaseObject, Object updatedValue) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Document query = new Document().append(queryDatabaseObject, compare);
+                Bson updates = Updates.combine(
+                        Updates.set(databaseObject, updatedValue)
+                );
+                UpdateOptions options = new UpdateOptions().upsert(true);
 
-        completableFuture.thenAccept((acknowledged) -> {
-            if (acknowledged) runnable.run();
-            else throw new RuntimeException();
+                getMongoClient().getDatabase("minedark").getCollection(collection).updateOne(query, updates, options);
+
+                return null;
+            } catch (Exception e) {
+                return null;
+            }
         });
     }
 
-    public void update(String collection, String whereField, Object whereValue, Document newDocument, Runnable runnable) {
-        query(collection, whereField, whereValue, (oldDocument) -> {
-            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(this.database).getCollection(collection);
-            CompletableFuture<Boolean> completableFuture = CompletableFuture.supplyAsync(() -> {
-                return mongoCollection.updateOne(oldDocument, newDocument).wasAcknowledged();
-            });
-            completableFuture.thenAccept((acknowledged) -> {
-                if (acknowledged) runnable.run();
-                else throw new RuntimeException();
-            });
+    public CompletableFuture<Void> update(String collection, String queryDatabaseObject, Object compare, List<Bson> updateFields) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Document query = new Document().append(queryDatabaseObject, compare);
+                UpdateOptions options = new UpdateOptions().upsert(true);
+
+                getMongoClient().getDatabase("minedark").getCollection(collection).updateOne(query, Updates.combine(updateFields), options);
+                return null;
+            } catch (Exception e) {
+                return null;
+            }
         });
+
+    }
+
+    public CompletableFuture<Boolean> exists(String collection, String queryDatabaseObject, Object compare) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Document document = new Document(queryDatabaseObject, compare);
+                long userCount = getMongoClient().getDatabase("minedark").getCollection(collection).countDocuments(document);
+                return (userCount>0);
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+    }
+
+    public CompletableFuture<Void> insert(String collection, Document document) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                getMongoClient().getDatabase("minedark").getCollection(collection).insertOne(document);
+                return null;
+            } catch (Exception e) {
+                return null;
+            }
+        });
+
+    }
+
+    public void shutdown() {
+        mongoClient.close();
     }
 
 }
