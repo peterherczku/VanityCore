@@ -2,6 +2,7 @@ package dev.blockeed.vanitycore.profile;
 
 import dev.blockeed.vanitycore.VanityCoreAPI;
 import lombok.AllArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +36,12 @@ public class ProfileHandler implements Listener {
             player.kickPlayer(ChatColor.RED+"ERROR: "+ChatColor.WHITE+"Profile returned null.");
             return;
         }
-        profileData.load(plugin, coreAPI.getDatabaseManager());
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                profileData.load(plugin, coreAPI.getDatabaseManager());
+            }
+        }, 20);
     }
 
     @EventHandler
