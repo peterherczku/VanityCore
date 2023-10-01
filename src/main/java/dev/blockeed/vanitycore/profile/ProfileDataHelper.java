@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ProfileDataHelper implements Listener {
 
     public static void registerHandler(VanityCoreAPI coreAPI, JavaPlugin plugin) {
-        Bukkit.getPluginManager().registerEvents(new ProfileHandler(coreAPI), plugin);
+        Bukkit.getPluginManager().registerEvents(new ProfileHandler(coreAPI, plugin), plugin);
     }
 
 }

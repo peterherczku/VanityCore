@@ -9,11 +9,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 @AllArgsConstructor
 public class ProfileHandler implements Listener {
 
     private VanityCoreAPI coreAPI;
+    private JavaPlugin plugin;
 
     @EventHandler
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
@@ -33,7 +35,7 @@ public class ProfileHandler implements Listener {
             player.kickPlayer(ChatColor.RED+"ERROR: "+ChatColor.WHITE+"Profile returned null.");
             return;
         }
-        profileData.load(coreAPI.getDatabaseManager());
+        profileData.load(plugin, coreAPI.getDatabaseManager());
     }
 
     @EventHandler

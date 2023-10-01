@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -20,16 +24,22 @@ public class ProfileData {
 
     private volatile UUID uuid;
     private volatile Int tokenBalance=new Int(0);
+    private volatile Int exp = new Int(0);
+    private volatile Int networkLevel = new Int(1);
 
     public ProfileData(UUID uuid) {
         this.uuid=uuid;
     }
 
-    public void load(DatabaseManager databaseManager) {
+    public int requiredExpForNextLevel() {
+        return networkLevel.getAmount()*networkLevel.getAmount()*1000-exp.getAmount();
+    }
+
+    public void load(JavaPlugin plugin, DatabaseManager databaseManager) {
         databaseManager.exists("profile", "uuid", uuid.toString()).thenAcceptAsync((exists) -> {
             if (!exists) {
                 create(databaseManager).thenRunAsync(() -> {
-                    load(databaseManager);
+                    load(plugin, databaseManager);
                 });
                 return;
             }
@@ -37,6 +47,25 @@ public class ProfileData {
             databaseManager.query("profile", "uuid", uuid.toString()).thenAcceptAsync((document) -> {
                 JSONObject jsonObject = new JSONObject(document.toJson());
                 tokenBalance.setAmount(jsonObject.getInt("tokenBalance"));
+                exp.setAmount(jsonObject.getInt("exp"));
+                networkLevel.setAmount(jsonObject.getInt("networkLevel"));
+
+                if (exp.getAmount()>networkLevel.getAmount()*networkLevel.getAmount()*1000) {
+                    networkLevel.increase(1);
+
+                    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+                                Player player = Bukkit.getPlayer(uuid);
+                                player.sendMessage("§7§lVANITY §8| §fGratulálunk, szintet léptél! Szinted: §d"+networkLevel.getAmount());
+                                player.sendTitle("§d§lSzintlépés!", "§7Szintet léptél! Szinted: "+networkLevel.getAmount());
+                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                            }
+                        }
+                    });
+                }
+
             });
 
         });
@@ -44,7 +73,9 @@ public class ProfileData {
 
     public void save(DatabaseManager databaseManager, Runnable runnable) {
         List<Bson> updateFields = Lists.newArrayList(
-                Updates.set("tokenBalance", tokenBalance.getAmount())
+                Updates.set("tokenBalance", tokenBalance.getAmount()),
+                Updates.set("exp", exp.getAmount()),
+                Updates.set("networkLevel", networkLevel.getAmount())
         );
 
         databaseManager.update(
@@ -60,6 +91,8 @@ public class ProfileData {
                 new Document()
                         .append("uuid", uuid.toString())
                         .append("tokenBalance", 0)
+                        .append("exp", 0)
+                        .append("networkLevel", 1)
         );
     }
 
