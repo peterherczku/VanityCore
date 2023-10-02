@@ -27,6 +27,10 @@ public class ProfileData {
     private volatile Int exp = new Int(0);
     private volatile Int networkLevel = new Int(1);
 
+    private volatile Int bedwarsWins = new Int(0);
+    private volatile Int bedwarsLosses = new Int(0);
+    private volatile Int bedwarsKills = new Int(0);
+
     public ProfileData(UUID uuid) {
         this.uuid=uuid;
     }
@@ -49,6 +53,9 @@ public class ProfileData {
                 tokenBalance.setAmount(jsonObject.getInt("tokenBalance"));
                 exp.setAmount(jsonObject.getInt("exp"));
                 networkLevel.setAmount(jsonObject.getInt("networkLevel"));
+                bedwarsWins.setAmount(jsonObject.getInt("bedwarsWins"));
+                bedwarsLosses.setAmount(jsonObject.getInt("bedwarsLosses"));
+                bedwarsKills.setAmount(jsonObject.getInt("bedwarskills"));
 
                 if (exp.getAmount()>networkLevel.getAmount()*networkLevel.getAmount()*1000) {
                     networkLevel.increase(1);
@@ -75,7 +82,10 @@ public class ProfileData {
         List<Bson> updateFields = Lists.newArrayList(
                 Updates.set("tokenBalance", tokenBalance.getAmount()),
                 Updates.set("exp", exp.getAmount()),
-                Updates.set("networkLevel", networkLevel.getAmount())
+                Updates.set("networkLevel", networkLevel.getAmount()),
+                Updates.set("bedwarsWins", bedwarsWins.getAmount()),
+                Updates.set("bedwarsLosses", bedwarsLosses.getAmount()),
+                Updates.set("bedwarsKills", bedwarsKills.getAmount())
         );
 
         databaseManager.update(
@@ -93,6 +103,9 @@ public class ProfileData {
                         .append("tokenBalance", 0)
                         .append("exp", 0)
                         .append("networkLevel", 1)
+                        .append("bedwarsWins", 0)
+                        .append("bedwarsLoses", 0)
+                        .append("bedwarsKills", 0)
         );
     }
 
