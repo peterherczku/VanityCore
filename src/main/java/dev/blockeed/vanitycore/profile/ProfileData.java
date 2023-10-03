@@ -55,9 +55,9 @@ public class ProfileData {
                 networkLevel.setAmount(jsonObject.getInt("networkLevel"));
                 bedwarsWins.setAmount(jsonObject.getInt("bedwarsWins"));
                 bedwarsLosses.setAmount(jsonObject.getInt("bedwarsLosses"));
-                bedwarsKills.setAmount(jsonObject.getInt("bedwarskills"));
+                bedwarsKills.setAmount(jsonObject.getInt("bedwarsKills"));
 
-                if (exp.getAmount()>networkLevel.getAmount()*networkLevel.getAmount()*1000) {
+                if (requiredExpForNextLevel()<=0) {
                     networkLevel.increase(1);
 
                     Bukkit.getScheduler().runTask(plugin, new Runnable() {
